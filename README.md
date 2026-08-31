@@ -31,20 +31,24 @@ npm run lint
 - **Small service boundary:** the app calls the supplied endpoint, whose string response is expected, then uses validated mock invoice data because the endpoint does not perform OCR.
 - **Clear state ownership:** TanStack Query handles API requests; a small provider in `src/state` holds the local payment flow.
 - **Money in öre:** calculations use integer minor units rather than floating-point currency values.
-- **Failure-first UX:** permission denial, extraction failure, unavailable payment options, signing cancellation, and payment failure all have a user-facing state.
+- **Failure-first UX:** permission denial, extraction failure, signing cancellation, and payment failure all have a user-facing state.
 - **Mocked payment signing:** BankID and payment processing are deliberately simulated; no payment is created.
+
+## Design patterns
+
+- **Provider:** `PaymentFlowProvider` keeps the in-progress invoice and selected payment option available across the flow screens.
+- **Service functions:** `src/services` holds invoice extraction, payment options, and BankID mocks, keeping screens focused on the UI.
+- **Query and mutation:** TanStack Query owns request loading, retry, and error state for extraction, payment options, and submission.
+- **Small screen components:** payment-flow-specific UI components live beside their screens instead of a large shared component system.
 
 ## What is included
 
 - Camera and library image selection via `expo-image-picker`
-- Low-confidence field highlighting and invoice validation
-- Payment quote calculation and unavailable-option handling
+- Invoice validation
+- Payment option calculation
 - Mock BankID cancellation and payment failure paths
-- Route guards for incomplete flow state
 - Small unit tests for invoice validation, payment options, money formatting, and error messages
 
 ## Assumptions and limitations
 
 This is a 5-6 hour MVP, not a production payments app. The supplied endpoint returns a bare string, so it is called to demonstrate the integration path, but the invoice record is a local typed mock. Payment quotes, BankID signing, and payment submission are also mocked.
-
-
