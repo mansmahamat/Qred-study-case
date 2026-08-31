@@ -1,56 +1,50 @@
-# Welcome to your Expo app 👋
+# Qred invoice payment case study
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A focused Expo / React Native implementation of an invoice-payment MVP. The flow follows the supplied case study:
 
-## Get started
+1. Capture an invoice with the camera or choose one from the photo library.
+2. Review and correct the extracted invoice details.
+3. Choose to pay now, in 30 days, or in 12 monthly instalments.
+4. Confirm with a mocked BankID signing step and view the receipt.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Open the app in Expo Go on a physical phone to test camera capture. The iOS Simulator does not have a camera; use **Choose from library** with an invoice image to exercise the complete flow there.
 
-### Other setup steps
+## Quality checks
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npm test -- --runInBand
+npx tsc --noEmit
+npm run lint
+```
 
-## Learn more
+## Design decisions
 
-To learn more about developing your project with Expo, look at the following resources:
+- **Expo Router + TypeScript:** file-based navigation with strict domain types.
+- **React Native Paper:** library-provided buttons, inputs, radio controls, and cards, with a small Qred theme.
+- **Small service boundary:** the app calls the supplied endpoint, whose string response is expected, then uses validated mock invoice data because the endpoint does not perform OCR.
+- **Clear state ownership:** TanStack Query handles API requests; a small provider in `src/state` holds the local payment flow.
+- **Money in öre:** calculations use integer minor units rather than floating-point currency values.
+- **Failure-first UX:** permission denial, extraction failure, unavailable payment options, signing cancellation, and payment failure all have a user-facing state.
+- **Mocked payment signing:** BankID and payment processing are deliberately simulated; no payment is created.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## What is included
 
-## Join the community
+- Camera and library image selection via `expo-image-picker`
+- Low-confidence field highlighting and invoice validation
+- Payment quote calculation and unavailable-option handling
+- Mock BankID cancellation and payment failure paths
+- Route guards for incomplete flow state
+- Small unit tests for invoice validation, payment options, money formatting, and error messages
 
-Join our community of developers creating universal apps.
+## Assumptions and limitations
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This is a 5-6 hour MVP, not a production payments app. The supplied endpoint returns a bare string, so it is called to demonstrate the integration path, but the invoice record is a local typed mock. Payment quotes, BankID signing, and payment submission are also mocked.
+
+
